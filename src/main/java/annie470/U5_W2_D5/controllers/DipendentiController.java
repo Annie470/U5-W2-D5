@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -54,5 +56,11 @@ public class DipendentiController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public  void delete(@PathVariable UUID id) {
         this.dipendenteService.findAndDelete(id);
+    }
+    
+    //PATCH ADD AVATAR
+    @PatchMapping("/{id}/avatar")
+    public Dipendente updateImg(@PathVariable UUID id, @RequestParam("avatar") MultipartFile file) throws IOException {
+        return this.dipendenteService.uploadAvatar(file, id);
     }
 }

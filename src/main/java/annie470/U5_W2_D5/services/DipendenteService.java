@@ -6,21 +6,32 @@ import annie470.U5_W2_D5.exceptions.NotFoundException;
 import annie470.U5_W2_D5.exceptions.ValidationException;
 import annie470.U5_W2_D5.payloads.NewDipendenteDTO;
 import annie470.U5_W2_D5.repositories.DipendenteRepository;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 public class DipendenteService {
     @Autowired
     private DipendenteRepository dipendenteRepository;
+    @Autowired
+    private Cloudinary imageUploader;
+
+    private static final long MAX_SIZE = 5 * 1024 * 1024;
+    private static final Set<String> ALLOWED_TYPES = Set.of( //GRAZIE INTERNET
+            "image/jpg",
+            "image/png",
+            "image/jpeg"
+    );
 
     //GET ALL
     public Page<Dipendente> findAll(int pageN, int pageSize) {
@@ -43,6 +54,7 @@ public class DipendenteService {
             throw new ValidationException(errors);
         }
         Dipendente newDipendente = new Dipendente(payload.nome(), payload.cognome(), payload.username(), payload.email());
+        newDipendente.setAvatar("https://ui-avatars.com/api/?name=" + payload.nome() + "+" + payload.cognome());
         this.dipendenteRepository.save(newDipendente);
         return newDipendente;
     }
@@ -71,6 +83,24 @@ public class DipendenteService {
         this.dipendenteRepository.delete(found);
     }
 
-    //PATCH AVATAR?
+
+    //PATCH AVATAR
+    public Dipendente uploadAvatar(MultipartFile file, UUID id) {
+        Dipendente found = this.findById(id);
+        if (file.isEmpty()) throw new BadRequestException("File vuoto!");
+        if (file.getSize() > MAX_SIZE) throw new BadRequestException("File troppo grande!");
+        if (!ALLOWED_TYPES.contains(file.getContentType())) throw new BadRequestException("I formati permessi sono png e jpeg!");
+
+        try {
+            Map result = imageUploader.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            String imageUrl= (String) result.get("url");
+            found.setAvatar(imageUrl);
+        } catch (IOException ex) {
+            throw  new RuntimeException(ex);
+        }
+        this.dipendenteRepository.save(found);
+        return found;
+    }
+
 
 }
