@@ -57,9 +57,9 @@ public class DipendentiController {
     public  void delete(@PathVariable UUID id) {
         this.dipendenteService.findAndDelete(id);
     }
-    
+
     //PATCH ADD AVATAR
-    @PatchMapping("/{id}/avatar")
+    @PatchMapping("/{id}/upload")
     public Dipendente updateImg(@PathVariable UUID id, @RequestParam("avatar") MultipartFile file) throws IOException {
         return this.dipendenteService.uploadAvatar(file, id);
     }
