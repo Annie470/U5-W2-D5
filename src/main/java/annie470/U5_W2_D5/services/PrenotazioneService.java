@@ -6,6 +6,7 @@ import annie470.U5_W2_D5.entities.Viaggio;
 import annie470.U5_W2_D5.exceptions.NotFoundException;
 import annie470.U5_W2_D5.exceptions.ValidationException;
 import annie470.U5_W2_D5.payloads.PrenotazioneDTO;
+import annie470.U5_W2_D5.payloads.UpdatePrenotazioneDTO;
 import annie470.U5_W2_D5.repositories.DipendenteRepository;
 import annie470.U5_W2_D5.repositories.PrenotazioneRepository;
 import annie470.U5_W2_D5.repositories.ViaggioRepository;
@@ -37,16 +38,17 @@ public class PrenotazioneService {
         }Dipendente dipendenteTrovato = dipendenteRepository.findById(payload.dipendenteId())
                 .orElse(null);
         if (dipendenteTrovato == null) {
-            errors.add("Dipendente con id " + payload.dipendenteId() + " non trovato!");
+            errors.add("Dipendente non trovato o id incorretto!");
         }
+        //filtra se trovav dipendente id e ha stessa data?
+        if (dipendenteTrovato != null && prenotazioneRepository.existsByDipendenteIdAndDataRichiesta(payload.dipendenteId(), payload.dataRichiesta())) {
+            errors.add("Il dipendente è impegnato in altro viaggio per questa data!");
+        }
+
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }
-        Prenotazione newPrenotazione = new Prenotazione();
-        newPrenotazione.setViaggio(viaggioTrovato);
-        newPrenotazione.setDipendente(dipendenteTrovato);
-        newPrenotazione.setDataRichiesta(payload.dataRichiesta());
-        newPrenotazione.setNote(payload.note());
+        Prenotazione newPrenotazione = new Prenotazione(viaggioTrovato, dipendenteTrovato, payload.dataRichiesta(), payload.note());
         return this.prenotazioneRepository.save(newPrenotazione);
     }
 
@@ -63,14 +65,15 @@ public class PrenotazioneService {
     }
 
     //PUT
-    public Prenotazione getAndUpdate(UUID id, PrenotazioneDTO payload) {
+    public Prenotazione getAndUpdate(UUID id, UpdatePrenotazioneDTO payload) {
         Prenotazione found = this.findById(id);
-        Viaggio viaggio = viaggioRepository.findById(payload.viaggioId())
-                .orElseThrow(() -> new NotFoundException("Viaggio non presente in DB o id incorretto!"));
-        Dipendente dipendente = dipendenteRepository.findById(payload.dipendenteId())
-                .orElseThrow(() -> new NotFoundException("Dipendente non presente in DB o id incorretto!"));
+        Viaggio viaggio = viaggioRepository.findById(payload.viaggioId()).orElseThrow(() -> new NotFoundException("Viaggio non presente in DB o id incorretto!"));
+
+        //non si puo camvìbiare data se il dipendente assegnato a questo viaggio ha gia la stessa data
+        prenotazioneRepository.findPrenotazioneStessaData(found.getDipendente().getId(), payload.dataRichiesta(), id).ifPresent(p -> {
+            throw new ValidationException(List.of("Il dipendente è già occupato in un viaggio per questa data!"));
+        });
         found.setViaggio(viaggio);
-        found.setDipendente(dipendente);
         found.setDataRichiesta(payload.dataRichiesta());
         found.setNote(payload.note());
         return prenotazioneRepository.save(found);

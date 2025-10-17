@@ -3,6 +3,7 @@ package annie470.U5_W2_D5.controllers;
 import annie470.U5_W2_D5.entities.Prenotazione;
 import annie470.U5_W2_D5.exceptions.ValidationException;
 import annie470.U5_W2_D5.payloads.PrenotazioneDTO;
+import annie470.U5_W2_D5.payloads.UpdatePrenotazioneDTO;
 import annie470.U5_W2_D5.services.PrenotazioneService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,7 +42,7 @@ public class PrenotazioneController {
 
     //PUT
     @PutMapping("/{id}")
-    public Prenotazione modifyPrenotazione(@PathVariable UUID id, @RequestBody @Validated PrenotazioneDTO body, BindingResult validationResult) {
+    public Prenotazione modifyPrenotazione(@PathVariable UUID id, @RequestBody @Validated UpdatePrenotazioneDTO body, BindingResult validationResult) {
         if(validationResult.hasErrors()) {
             throw new ValidationException(validationResult.getFieldErrors().stream().map(fieldError -> fieldError.getDefaultMessage()).toList());}
         return this.prenotazioneService.getAndUpdate(id, body);

@@ -4,15 +4,17 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Data
 @NoArgsConstructor
+@Table(name = "prenotazioni")
 public class Prenotazione {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Setter(AccessLevel.NONE)
-    private long id;
+    private UUID id;
     @Column(name = "data_richiesta", nullable = false)
     private LocalDate dataRichiesta;
     @Column(nullable = true)
@@ -26,10 +28,10 @@ public class Prenotazione {
     private Dipendente dipendente;
 
 
-    public Prenotazione(LocalDate dataRichiesta, String note, Viaggio viaggio, Dipendente dipendente) {
-        this.dataRichiesta = dataRichiesta;
-        this.note = note;
+    public Prenotazione( Viaggio viaggio, Dipendente dipendente, LocalDate dataRichiesta, String note) {
         this.viaggio = viaggio;
         this.dipendente = dipendente;
+        this.dataRichiesta = dataRichiesta;
+        this.note = note;
     }
 }
