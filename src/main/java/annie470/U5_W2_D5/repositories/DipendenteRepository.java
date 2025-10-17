@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface DipendenteRepository extends JpaRepository<Dipendente, UUID> {
 
     Optional<Dipendente> findById(UUID id);
+    Optional<Dipendente> findByEmail(String email);
+    Optional<Dipendente> findByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 }

@@ -1,0 +1,58 @@
+package annie470.U5_W2_D5.controllers;
+
+
+import annie470.U5_W2_D5.entities.Dipendente;
+import annie470.U5_W2_D5.exceptions.ValidationException;
+import annie470.U5_W2_D5.payloads.NewDipendenteDTO;
+import annie470.U5_W2_D5.services.DipendenteService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/dipendenti")
+public class DipendentiController {
+    @Autowired
+    private DipendenteService dipendenteService;
+
+    //POST
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Dipendente salvaDipendente(@RequestBody @Validated NewDipendenteDTO body, BindingResult validationResult) {
+        if (validationResult.hasErrors()) {
+            throw new ValidationException(validationResult.getFieldErrors().stream().map(fieldError -> fieldError.getDefaultMessage()).toList());
+        }
+        return this.dipendenteService.saveDipendente(body);
+    }
+
+    //GET ALL
+        @GetMapping
+        public Page<Dipendente> getAll(@RequestParam(defaultValue = "0") int pageN, @RequestParam(defaultValue = "10") int pageSize) {
+            return this.dipendenteService.findAll(pageN, pageSize);
+    }
+
+    //GET SINGLE
+        @GetMapping("/{id}")
+        public Dipendente getById(@PathVariable UUID id) {
+            return this.dipendenteService.findById(id);
+    }
+
+    //PUT
+        @PutMapping("/{id}")
+        public Dipendente modifyDipendente(@PathVariable UUID id, @RequestBody @Validated NewDipendenteDTO body, BindingResult validationResult) {
+            if(validationResult.hasErrors()) { throw new ValidationException(validationResult.getFieldErrors().stream().map(fieldError -> fieldError.getDefaultMessage()).toList());}
+            return this.dipendenteService.getAndUpdate(id, body);
+    }
+
+    //DELETE
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public  void delete(@PathVariable UUID id) {
+        this.dipendenteService.findAndDelete(id);
+    }
+}
