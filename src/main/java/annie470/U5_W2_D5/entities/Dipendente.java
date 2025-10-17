@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.util.UUID;
@@ -11,7 +13,6 @@ import java.util.UUID;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Dipendente {
     @Id
     @GeneratedValue
@@ -26,5 +27,10 @@ public class Dipendente {
     @Column(nullable = false)
     private String email;
 
-
+    public Dipendente(String nome, String cognome, String username, String email) {
+        this.nome = nome;
+        this.cognome = cognome;
+        this.username = username;
+        this.email = email;
+    }
 }
