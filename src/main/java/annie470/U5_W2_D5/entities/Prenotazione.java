@@ -8,7 +8,6 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Prenotazione {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,4 +26,10 @@ public class Prenotazione {
     private Dipendente dipendente;
 
 
+    public Prenotazione(LocalDate dataRichiesta, String note, Viaggio viaggio, Dipendente dipendente) {
+        this.dataRichiesta = dataRichiesta;
+        this.note = note;
+        this.viaggio = viaggio;
+        this.dipendente = dipendente;
+    }
 }

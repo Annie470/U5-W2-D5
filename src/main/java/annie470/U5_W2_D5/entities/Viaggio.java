@@ -8,7 +8,6 @@ import java.time.LocalDate;
 @Entity
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class Viaggio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,6 +20,9 @@ public class Viaggio {
     @Column(nullable = false)
     private Stato stato;
 
-
-
+    public Viaggio(String destinazione, LocalDate data, Stato stato) {
+        this.destinazione = destinazione;
+        this.data = data;
+        this.stato = stato;
+    }
 }
